@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "381122214819",
+    "project_id": "pharma-kin",
+    "storage_bucket": "pharma-kin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381122214819:android:45810dbc26728f4308b816",
+        "android_client_info": {
+          "package_name": "com.pharmakin.pharma_kin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWcUyK_2ZbkHWC2nXEEUW2kFMNJPoi9PQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
