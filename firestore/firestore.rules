@@ -1,0 +1,63 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- PHARMACIES ----------
+    match /pharmacies/{pharmacyId} {
+      // Tout le monde peut lire les pharmacies (nécessaire pour la recherche
+      // côté app utilisateur). Le filtrage "visible ou non" se fait côté
+      // client via isVisibleToUsers, mais on pourrait durcir avec une
+      // Cloud Function qui ne renvoie que les champs publics si besoin.
+      allow read: if true;
+
+      // Seule la pharmacie elle-même peut modifier SA fiche, et seulement
+      // certains champs (pas son propre statut de validation/paiement,
+      // que seul l'admin peut changer -- à appliquer via Cloud Functions
+      // pour une sécurité complète ; ébauche simple ci-dessous).
+      allow update: if request.auth != null
+                    && request.auth.uid == pharmacyId
+                    && !request.resource.data.diff(resource.data)
+                        .affectedKeys()
+                        .hasAny(['registrationStatus', 'paymentStatus', 'active']);
+
+      // Création : uniquement par le pharmacien pour son propre compte,
+      // toujours en statut "pending".
+      allow create: if request.auth != null
+                    && request.auth.uid == pharmacyId
+                    && request.resource.data.registrationStatus == 'pending';
+
+      allow delete: if false; // jamais de suppression directe côté client
+    }
+
+    // ---------- MÉDICAMENTS (catalogue partagé) ----------
+    match /medicines/{medicineId} {
+      allow read: if true;
+      // Seul l'admin (via un rôle custom claim "admin") gère le catalogue.
+      allow write: if request.auth != null
+                   && request.auth.token.admin == true;
+    }
+
+    // ---------- STOCK ----------
+    match /stock/{stockId} {
+      allow read: if true;
+
+      // Une pharmacie ne peut écrire que sur SES propres entrées de stock,
+      // et seulement si son abonnement le permet (vérifié aussi côté
+      // Cloud Function pour éviter le contournement du champ canEditStock
+      // qui est calculé côté client).
+      allow create, update: if request.auth != null
+                             && request.auth.uid == request.resource.data.pharmacyId;
+
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.pharmacyId;
+    }
+
+    // ---------- CONFIGURATION GLOBALE ----------
+    match /config/{configId} {
+      allow read: if true; // le prix affiché doit être lisible par l'app pharmacie
+      allow write: if request.auth != null
+                   && request.auth.token.admin == true;
+    }
+  }
+}
