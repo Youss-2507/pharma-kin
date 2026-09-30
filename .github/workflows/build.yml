@@ -31,8 +31,7 @@ jobs:
       - name: Générer le projet Android natif si absent
         run: |
           if [ ! -d "android" ]; then
-            flutter create --platforms=android --org com.pharmakin .
-          fi
+            flutter create --platforms=android --org com.pharmakin --project-name pharma_kin .
 
       # Le fichier google-services.json (téléchargé depuis la console
       # Firebase) doit être présent dans firebase/google-services.json
