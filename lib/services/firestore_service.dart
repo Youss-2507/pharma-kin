@@ -23,7 +23,7 @@ class FirestoreService {
 
     final snapshot = await _medicines
         .where('searchKeywords', arrayContains: q)
-        .get();
+        .get(const GetOptions(source: Source.server));
 
     if (snapshot.docs.isNotEmpty) {
       return snapshot.docs.map((d) => Medicine.fromFirestore(d)).toList();
