@@ -52,7 +52,7 @@ jobs:
         run: flutter pub get
 
       - name: Compiler l'APK (mode release)
-        run: flutter build apk --release
+        run: flutter build apk --release --no-shrink
 
       - name: Publier l'APK comme résultat téléchargeable
         uses: actions/upload-artifact@v4
