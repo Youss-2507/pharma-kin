@@ -47,7 +47,10 @@ jobs:
           if [ -f "$APP_GRADLE" ] && ! grep -q "com.google.gms.google-services" "$APP_GRADLE"; then
             sed -i '/^plugins {/a\    id("com.google.gms.google-services")' "$APP_GRADLE"
           fi
-
+      - name: Désactiver la minification (simplifie la compilation)
+        run: |
+          APP_GRADLE="android/app/build.gradle.kts"
+          sed -i '/release {/a\            isMinifyEnabled = false\n            isShrinkResources = false' "$APP_GRADLE"
       - name: Installer les dépendances Flutter
         run: flutter pub get
 
