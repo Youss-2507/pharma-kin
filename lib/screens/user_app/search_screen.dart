@@ -23,13 +23,21 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
     setState(() => _loading = true);
-    final results = await _firestoreService.searchMedicines(query);
-    setState(() {
-      _suggestions = results;
-      _loading = false;
-    });
+    try {
+      final results = await _firestoreService.searchMedicines(query);
+      setState(() {
+        _suggestions = results;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() => _loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ERREUR: $e'), duration: const Duration(seconds: 10)),
+        );
+      }
+    }
   }
-
   void _openResults(Medicine medicine) {
     Navigator.push(
       context,
