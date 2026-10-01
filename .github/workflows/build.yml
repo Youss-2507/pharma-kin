@@ -1,7 +1,5 @@
 name: Build APK
 
-# Se déclenche à chaque envoi de code sur la branche main,
-# et peut aussi être lancé manuellement depuis l'onglet "Actions" de GitHub.
 on:
   push:
     branches: [main]
@@ -25,33 +23,29 @@ jobs:
         with:
           channel: 'stable'
 
-      # Le dossier android/ n'est pas versionné (il est régénéré à chaque
-      # build) : ça évite d'avoir à le maintenir à la main depuis le téléphone.
       - name: Générer le projet Android natif si absent
         run: |
-          if [ ! -d "android" ]; then            flutter create --platforms=android --org com.pharmakin --project-name pharma_kin .
+          if [ ! -d "android" ]; then
+            flutter create --platforms=android --org com.pharmakin --project-name pharma_kin .
           fi
 
-      # Le fichier google-services.json (téléchargé depuis la console
-      # Firebase) doit être présent dans firebase/google-services.json
-      # à la racine du dépôt. On le copie au bon endroit avant de builder.
       - name: Copier la configuration Firebase
         run: |
           if [ -f "firebase/google-services.json" ]; then
             cp firebase/google-services.json android/app/google-services.json
           else
-            echo "AVERTISSEMENT: firebase/google-services.json introuvable - l'app compilera mais Firebase ne fonctionnera pas encore."
+            echo "AVERTISSEMENT: firebase/google-services.json introuvable"
           fi
 
       - name: Activer le plugin Google Services (Gradle)
         run: |
-          BUILD_GRADLE="android/build.gradle.kts"
+          SETTINGS_GRADLE="android/settings.gradle.kts"
           APP_GRADLE="android/app/build.gradle.kts"
-          if [ -f "$BUILD_GRADLE" ] && ! grep -q "com.google.gms.google-services" "$BUILD_GRADLE"; then
-            sed -i '/dependencies {/a\        classpath("com.google.gms:google-services:4.4.2")' "$BUILD_GRADLE"
+          if [ -f "$SETTINGS_GRADLE" ] && ! grep -q "com.google.gms.google-services" "$SETTINGS_GRADLE"; then
+            sed -i '/^plugins {/a\    id("com.google.gms.google-services") version "4.4.2" apply false' "$SETTINGS_GRADLE"
           fi
           if [ -f "$APP_GRADLE" ] && ! grep -q "com.google.gms.google-services" "$APP_GRADLE"; then
-            echo 'apply(plugin = "com.google.gms.google-services")' >> "$APP_GRADLE"
+            sed -i '/^plugins {/a\    id("com.google.gms.google-services")' "$APP_GRADLE"
           fi
 
       - name: Installer les dépendances Flutter
