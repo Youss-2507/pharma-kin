@@ -29,6 +29,11 @@ class _SearchScreenState extends State<SearchScreen> {
         _suggestions = results;
         _loading = false;
       });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('DEBUG: requête="$query" -> ${results.length} résultat(s)'), duration: const Duration(seconds: 8)),
+        );
+      }
     } catch (e) {
       setState(() => _loading = false);
       if (mounted) {
