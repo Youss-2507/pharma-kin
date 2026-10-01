@@ -23,15 +23,13 @@ jobs:
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
 
       # Le dossier android/ n'est pas versionné (il est régénéré à chaque
       # build) : ça évite d'avoir à le maintenir à la main depuis le téléphone.
       - name: Générer le projet Android natif si absent
         run: |
-          if [ ! -d "android" ]; then
-            flutter create --platforms=android --org com.pharmakin --project-name pharma_kin .
+          if [ ! -d "android" ]; then            flutter create --platforms=android --org com.pharmakin --project-name pharma_kin .
           fi
 
       # Le fichier google-services.json (téléchargé depuis la console
